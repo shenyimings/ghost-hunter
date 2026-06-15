@@ -1,0 +1,31 @@
+[project]
+name = "ghost-hunter"
+version = "0.3.0"
+description = "A Lightweight On-Chain TX Analysis Engine"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.12.15",
+    "click>=8.3.1",
+    "dune-client>=1.10.0",
+    "eth-abi>=5.2.0",
+    "matplotlib>=3.10.9",
+    "pandas>=3.0.2",
+    "polars>=1.39.3",
+    "pyarrow>=23.0.1",
+    "pydantic>=2.12.5",
+    "pypdf>=6.12.1",
+    "python-dateutil>=2.9.0.post0",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0.3",
+    "requests",
+    "seaborn>=0.13.2",
+    "tqdm>=4.67.3",
+    "web3>=7.14.1",
+    "websockets>=15.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

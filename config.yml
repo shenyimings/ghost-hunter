@@ -1,0 +1,110 @@
+
+rules:
+  proxy_trap:
+    priority: 5
+    description: "Maker or taker wallet is engineered to revert inside onERC1155Received (burns all gas or causes a stack overflow) when the exchange tries to deliver CTF tokens."
+    enabled: true
+  nonce_bump:
+    priority: 10
+    description: "V1 only. A participant (taker/maker, maker/signer) called incrementNonce() on the underlying CTF/NegRisk exchange within 5 blocks before the revert, invalidating the order's signed nonce. Cheapest rule: parquet-only, zero RPC."
+    enabled: true
+  approve_revoke:
+    priority: 20
+    description: "A participant called approve(exchange, amount) on the collateral token within 5 blocks before the revert, causing transferFrom to fail with InsufficientAllowance."
+    enabled: true
+  balance_drain:
+    priority: 30
+    description: "A participant transferred all collateral out before matchOrders landed (high-gas front-run, gas_ratio > 1), causing transferFrom to fail with insufficient balance."
+    enabled: true
+  # fee_exceeds_max_rate:
+  #   priority: 100
+  #   description: "Benign contract validation failure: the fee rate embedded in an order exceeds the exchange's configured maximum. Not an attack."
+  #   enabled: false
+  # custom_error:
+  #   priority: 110
+  #   description: "Revert decoded to a known custom error other than the collateral-transfer family (TransferFromFailed/InsufficientAllowance/InsufficientBalance/SafeMath underflow) and other than FeeExceedsMaxRate. Short-circuits balance_drain / approve_revoke probing."
+  #   enabled: false
+  # collateral_race:
+  #   priority: 120
+  #   description: "Taker (or maker) over-committed across concurrent same-block matchOrders: this single order was fundable on its own (balance at B-1 >= its commitment) but the balance was drained within the block by sibling settlements, so this one lost the race and reverted."
+  #   enabled: false
+  unclassified:
+    priority: 9999
+    description: "Fallback — emitted when no higher-priority rule matched."
+    enabled: false
+
+retry:
+  max_attempts: 5
+  base_delay_seconds: 1.0
+  max_delay_seconds: 60.0
+
+performance:
+  # Maximum concurrent transactions in-flight (asyncio semaphore).
+  max_concurrent: 18
+  # Flush findings to disk (append) every N processed rows.
+  # Keeps peak memory proportional to N rather than the full run.
+  flush_every_n: 1000
+  # Split JSONL output into chunks once a file exceeds this size (MB).
+  # 0 = disabled (write everything to the single --output path).
+  # Chunk files are named <stem>_000.jsonl, <stem>_001.jsonl, …
+  max_output_mb: 100
+  # Per-key concurrency caps for each API key pool.
+  etherscan_max_concurrent_per_key: 3
+  alchemy_max_concurrent_per_key: 20
+
+constants:
+  # V1 (historical, pre-2026-04-28). All V1 selectors use matchOrders() 0x2287e350 / nonce: 0x627cdcb9.
+  neg_risk_ctf_exchange: "0xc5d563a36ae78145c45a50134d48a1215220f80a"
+  neg_risk_fee_module:   "0xb768891e3130f6df18214ac804d4db76c2c37730"
+  ctf_exchange:          "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E"
+  ctf_exchange_fee_module: "0xe3f18acc55091e2c48d883fc8c8413319d4ab7b0"
+
+  # V2 (current, from 2026-04-28). Selector 0x3c2b4399. Collateral is pUSD,
+  # not USDC.e. incrementNonce() is gone — order uniqueness is by timestamp.
+  ctf_exchange_v2:          "0xE111180000d2663C0091e4f400237545B87B996B"
+  neg_risk_ctf_exchange_v2: "0xe2222d279d744050d28e00520010520000310F59"
+  pusd:                     "0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB"
+
+
+selectors:
+  increment_nonce: "0x627cdcb9" # @ctf_exchange & @neg_risk_ctf_exchange
+  match_orders:    "0x2287e350" # @neg_risk_fee_module & @ctf_exchange_fee_module
+  match_orders_v2: "0x3c2b4399" # @ctf_exchange_v2 & @neg_risk_ctf_exchange_v2
+  approve:         "0x095ea7b3"
+
+
+revert_errors:
+  # Collateral-side (exchange wrapper + pUSD token custom errors):
+  "7939f424": "TransferFromFailed()"
+  "13be252b": "InsufficientAllowance()"   # pUSD: thrown by transferFrom when allowance < amount
+  "f4d678b8": "InsufficientBalance()"     # pUSD: thrown by transferFrom when balance < amount
+
+  # V1 / common:
+  "756688fe": "InvalidNonce()"
+  "c56873ba": "OrderExpired()"
+  "7b38b76e": "OrderFilledOrCancelled()"
+  "66f8620a": "InvalidComplement()"
+
+  # V2 CTF Exchange (verified ABI):
+  "3c97aa59": "FeeExceedsMaxRate()"
+  "e72f7245": "UserIsPaused()"
+  "8baa579f": "InvalidSignature()"
+  "ee3b3d4b": "OrderAlreadyFilled()"
+  "7f9a6f46": "NotCrossing()"
+  "df4d8080": "TooLittleTokensReceived()"
+  "e2cc6ad6": "MakingGtRemaining()"
+  "3fd82216": "ComplementaryFillExceedsTakerFill()"
+  "b2f300d0": "ZeroMakerAmount()"
+  "568efce2": "MismatchedArrayLengths()"
+  "a0b94465": "MismatchedTokenIds()"
+  "9e87fac8": "Paused()"
+  "2b754c57": "UserAlreadyPaused()"
+  "5de76cda": "FeeExceedsProceeds()"
+  "dfa61d2b": "NoMakerOrders()"
+  "386d034a": "AlreadyAdmin()"
+  "ad45d807": "AlreadyOperator()"
+  "b0f7fdb4": "ExceedsMaxPauseInterval()"
+  "df0e465e": "LastAdmin()"
+  "d1202cff": "MaxFeeRateExceedsCeiling()"
+  "7bfa4b9f": "NotAdmin()"
+  "7c214f04": "NotOperator()"

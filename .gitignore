@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+.former-backup
+.DS_Store
+.cache
+archive
+output
+logs
+rpc-scan-final.tar.gz
+parquets
+# top-level full-dataset parquets (too large for GitHub); RQ-level results/ stay tracked
+.nonce_txs_state
+.agents
+
+archive
