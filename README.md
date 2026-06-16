@@ -1,5 +1,9 @@
 # GhostHunter
 
+[![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b)](http://arxiv.org/abs/2606.16852)
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=shenyimings.ghost-hunter&left_text=visitors&logo=github)
+![Python](https://img.shields.io/badge/Python-3.12+-blue)
+
 Research artifact for *The Ghosts of Polymarket: When Off-Chain Matches Meet On-Chain Reverts*.
 
 > [!WARNING]
