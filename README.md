@@ -10,7 +10,7 @@ Research artifact for *The Ghosts of Polymarket: When Off-Chain Matches Meet On-
 > **Ethics Statement.**
 > This repository selectively open-sources the *methodology* part: detection rules, analysis scripts, and reproducible SQL queries, but **does not** include raw detection outputs, attacker address lists, or any other data that could be used to identify or target specific entities. We also omit Polymarket market slug/name mappings, as some market titles reference politically or religiously sensitive topics.
 
-GhostHunter is a lightweight on-chain transaction analysis engine that detects and classifies reverted Polymarket CLOB `matchOrders` on Polygon. It decodes calldata, replays execution traces, and runs a prioritized rule chain to attribute each revert to an attack vector: *Proxy Trap*, *Nonce Bump*, *Allowance Revoke*, or *Balance Drain*.
+GhostHunter is a lightweight on-chain transaction analysis engine that detects and classifies reverted Polymarket CLOB `matchOrders` on Polygon (i.e., *Ghost Fills*). It decodes calldata, replays execution traces, and runs a prioritized rule chain to attribute each revert to an attack vector: *Proxy Trap*, *Nonce Bump*, *Allowance Revoke*, or *Balance Drain*.
 
 ## Repository Layout
 
